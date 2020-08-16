@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+install() {
+  version=$2
+  install_dir=$3
+
+  build_dir=$(mktemp -d)
+  cd $build_dir
+
+  git clone https://github.com/shadowsocksrr/shadowsocksr-libev
+  cd shadowsocksr-libev
+  current_dir=$(pwd)
+  curl -fSL -JO https://tls.mbed.org/download/polarssl-1.3.9-gpl.tgz
+  tar -xzf polarssl-1.3.9-gpl.tgz
+  cd polarssl-1.3.9
+  mkdir build
+  cd build
+  cmake -DCMAKE_INSTALL_PREFIX=$install_dir ..
+  make install
+  cd $current_dir
+  ./configure --prefix=$install_dir --disable-documentation --with-polarssl=$install_dir --with-crypto-library=polarssl
+  make install || exit 1
+}
+
+install $ASDF_INSTALL_TYPE $ASDF_INSTALL_VERSION $ASDF_INSTALL_PATH
